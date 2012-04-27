@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
 
-getStreamURLs() {
+get_stream_URLs() {
 	wget "$1" -O - 2>/dev/null | sed -ne '/window\.SC\.bufferTracks\.push/{s/.*uri":"\([^"]*\)".*streamUrl":"\([^"?]*\).*/\2?\1/;p;}'
 }
 
-getPageCount() {
+get_page_count() {
 	wget "${1}" -O - 2>/dev/null | grep -o 'page=[0-9]*' | cut -d= -f 2 | sort -g | tail -n 1
 }
 
-count="$(getPageCount "$1")"
+count="$(get_page_count "$1")"
 if [[ -z "$count" ]]; then
-	getStreamURLs "$1" | head -n 1
+	get_stream_URLs "$1" | head -n 1
 else
 	if [[ "$count" -gt 10 ]]; then
 		count=10
 	fi
 	for ((i=1;i<=count;i++)); do
-		getStreamURLs "${1}?page=${i}"
+		get_stream_URLs "${1}?page=${i}"
 	done
 fi
