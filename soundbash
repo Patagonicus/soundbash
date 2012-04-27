@@ -41,14 +41,17 @@ done
 
 shift $((OPTIND - 1))
 
-count="$(getPageCount "$1")"
-if [[ -z "$count" ]]; then
-	getStreamURLs "$1" | head -n 1
-else
-	if (( max_pages > 0 && count > max_pages )); then
-		count="$max_pages"
+while (( $# > 0 )); do
+	count="$(getPageCount "$1")"
+	if [[ -z "$count" ]]; then
+		getStreamURLs "$1" | head -n 1
+	else
+		if (( max_pages > 0 && count > max_pages )); then
+			count="$max_pages"
+		fi
+		for ((i=1;i<=count;i++)); do
+			getStreamURLs "${1}?page=${i}"
+		done
 	fi
-	for ((i=1;i<=count;i++)); do
-		getStreamURLs "${1}?page=${i}"
-	done
-fi
+	shift
+done
