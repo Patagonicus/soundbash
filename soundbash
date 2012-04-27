@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 get_stream_URLs() {
-	wget "$1" -O - 2>/dev/null | sed -ne '/window\.SC\.bufferTracks\.push/{s/.*uri":"\([^"]*\)".*streamUrl":"\([^"?]*\).*/\2?\1/;p;}'
+	wget -O - -- "$1" 2>/dev/null | sed -ne '/window\.SC\.bufferTracks\.push/{s/.*uri":"\([^"]*\)".*streamUrl":"\([^"?]*\).*/\2?\1/;p;}'
 }
 
 get_page_count() {
-	wget "${1}" -O - 2>/dev/null | grep -o 'page=[0-9]*' | cut -d= -f 2 | sort -g | tail -n 1
+	wget -O - -- "$1" 2>/dev/null | grep -o 'page=[0-9]*' | cut -d= -f 2 | sort -g | tail -n 1
 }
 
 count="$(get_page_count "$1")"
