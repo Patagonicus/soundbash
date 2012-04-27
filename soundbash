@@ -8,6 +8,34 @@ getPageCount() {
 	wget "${1}" -O - 2>/dev/null | grep -o 'page=[0-9]*' | cut -d= -f 2 | sort -g | tail -n 1
 }
 
+show_help() {
+	cat <<EOF
+Usage: soundbash soundcloud_link
+This utility extracts all SoundCloud streaming URLs from a given page. It should work with pretty much everything (track URLs, user favorites, searches).
+
+Parameters:
+	-h -?	print this help and exit
+EOF
+}
+
+
+OPTIND=1
+
+while getopts ':h?' opt; do
+	case "$opt" in
+		h|\?)
+			if [[ -n "$OPTARG" ]]; then
+				echo "Invalid option: $OPTARG" >&2
+				exit 1
+			fi
+			show_help
+			exit 0
+			;;
+	esac
+done
+
+shift $((OPTIND - 1))
+
 count="$(getPageCount "$1")"
 if [[ -z "$count" ]]; then
 	getStreamURLs "$1" | head -n 1
