@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+# Checks if a page is a single track page or not.
+#
+# Input:
+# $1 - URL of the page
+# Return: 0 if the page is a single track page, 1 otherwise
+is_single_track_page() {
+	wget -O - -- "$1" 2>/dev/null | grep '<meta content="soundcloud:sound"' >/dev/null 2>&1
+}
+
 # Extracts all stream URLs from a given page.
 #
 # Input:
@@ -17,7 +26,11 @@ get_stream_URLs() {
 # Output:
 # stdout - number of pages or an empty string if there aren’t multiple pages
 get_page_count() {
-	wget -O - -- "$1" 2>/dev/null | grep -o 'page=[0-9]*' | cut -d= -f 2 | sort -g | tail -n 1
+	local count="$(wget -O - -- "$1" 2>/dev/null | grep -o 'page=[0-9]*' | cut -d= -f 2 | sort -g | tail -n 1)"
+	if ! (( count >= 1 )); then
+		count=1
+	fi
+	echo "$count"
 }
 
 # Shows a description of the script and a list of parameters
@@ -58,10 +71,10 @@ done
 shift $((OPTIND - 1))
 
 while (( $# > 0 )); do
-	count="$(get_page_count "$1")"
-	if [[ -z "$count" ]]; then
+	if is_single_track_page "$1"; then
 		get_stream_URLs "$1" | head -n 1
 	else
+		count="$(get_page_count "$1")"
 		if (( max_pages > 0 && count > max_pages )); then
 			count="$max_pages"
 		fi
