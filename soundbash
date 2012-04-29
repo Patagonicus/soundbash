@@ -1,13 +1,29 @@
 #!/usr/bin/env bash
 
+# Extracts all stream URLs from a given page.
+#
+# Input:
+# $1 - URL of the page
+# Output:
+# stdout - streaming URLs separated by newlines
 get_stream_URLs() {
 	wget -O - -- "$1" 2>/dev/null | sed -ne '/window\.SC\.bufferTracks\.push/{s/.*uri":"\([^"]*\)".*streamUrl":"\([^"?]*\).*/\2?\1/;p;}'
 }
 
+# Extracts the page count for a page.
+#
+# Input:
+# $1 - URL of the page
+# Output:
+# stdout - number of pages or an empty string if there aren’t multiple pages
 get_page_count() {
 	wget -O - -- "$1" 2>/dev/null | grep -o 'page=[0-9]*' | cut -d= -f 2 | sort -g | tail -n 1
 }
 
+# Shows a description of the script and a list of parameters
+#
+# Output:
+# stdout - short description and a list of parameters
 show_help() {
 	cat <<EOF
 Usage: soundbash soundcloud_link
