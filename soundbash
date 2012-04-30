@@ -46,48 +46,92 @@ The streaming URL contains the track path as a parameter. Prepend the part after
 Parameters:
     -h -?       print this help and exit.
     -m number   limits the output to a maximum of number pages. Use 0 or a negative number to fetch all results. Default: 10
+    -u URL      extract the streaming URLs from the given link.
 EOF
 }
 
+# Extracts the streaming URL from a single track page.
+#
+# Input:
+# $1 - URL
+# Output:
+# stdout - the streaming URL
+get_single_track_URL() {
+	get_stream_URLs "$1" | head -n 1
+}
 
-OPTIND=1
+# Extracts streaming URLs from a multi track page. A maximum number of pages can be specified.
+#
+# Input:
+# $1 - URL
+# $2 - maximum number of pages. Pass nothing, a number <= 0 or a string to get all pages.
+# Output:
+# stdout - the streaming URLs from the page
+get_multi_track_URLs() {
+	count="$(get_page_count "$1")"
+	if ! (( count >= 1 )); then
+		count=1
+	fi
+	if (( "$2" >= 1 && "$2" < count )); then
+		count="$2"
+	fi
+	for (( i=1; i <= count; i++ )); do
+		get_stream_URLs "${1}?page=${i}"
+	done
+}
+
+# Extracts streaming URLs from a page. If a single track page is given, only the URL for the track is returned, otherwise as many track pages as
+# specified are returned.
+#
+# Input:
+# $1 - URL
+# $2 - maximum number of pages to extract streaming URLs from
+# Output:
+# stdout - the streaming URL(s) for the track(s)
+handle_url() {
+	if is_single_track_page "$1"; then
+		get_single_track_URL "$1"
+	else
+		get_multi_track_URLs "$1" "$2"
+	fi
+}
+
+
 max_pages=10
 
-while getopts ':h?m:' opt; do
-	case "$opt" in
-		h|\?)
-			if [[ -n "$OPTARG" ]]; then
-				echo "Invalid option: $OPTARG" >&2
-				exit 1
-			fi
-			show_help
-			exit 0
-			;;
-		m)
-			max_pages="$OPTARG"
-			;;
-	esac
-done
-
-shift $((OPTIND - 1))
-
-if (( $# == 0 )); then
-	echo "No URLs given." >&2
-	echo "Pass -h for help." >&2
-	exit 1
-fi
-
 while (( $# > 0 )); do
-	if is_single_track_page "$1"; then
-		get_stream_URLs "$1" | head -n 1
-	else
-		count="$(get_page_count "$1")"
-		if (( max_pages > 0 && count > max_pages )); then
-			count="$max_pages"
-		fi
-		for ((i=1;i<=count;i++)); do
-			get_stream_URLs "${1}?page=${i}"
+	if [[ "${1:0:1}" == "-" ]]; then
+		params="${1:1}"
+		shift
+		while (( ${#params} > 0 )); do
+			case "${params:0:1}" in
+				h|\?)
+					show_help
+					exit 0
+					;;
+
+				m)
+					if (( $# < 1 )); then
+						echo "-m needs a parameter" >&2
+						exit 1
+					fi
+					max_pages="$1"
+					shift
+					;;
+
+				u)
+					if (( $# < 1 )); then
+						echo "-u needs a parameter" >&2
+						exit 1
+					fi
+					handle_url "$1" "$max_pages"
+					shift
+					;;
+			esac
+			params="${params:1}"
 		done
+	else
+		handle_url "$1" "$max_pages"
+		shift
 	fi
-	shift
 done
