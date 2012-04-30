@@ -71,6 +71,12 @@ done
 
 shift $((OPTIND - 1))
 
+if (( $# == 0 )); then
+	echo "No URLs given." >&2
+	echo "Pass -h for help." >&2
+	exit 1
+fi
+
 while (( $# > 0 )); do
 	if is_single_track_page "$1"; then
 		get_stream_URLs "$1" | head -n 1
