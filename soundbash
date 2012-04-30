@@ -41,6 +41,7 @@ show_help() {
 	cat <<EOF
 Usage: soundbash soundcloud_link
 This utility extracts all SoundCloud streaming URLs from a given page. It should work with pretty much everything (track URLs, user favorites, searches).
+The streaming URL contains the track path as a parameter. Prepend the part after the quotation mark with http://soundcloud.com to get the track URL.
 
 Parameters:
 	-h -?		print this help and exit
