@@ -46,7 +46,7 @@ The streaming URL contains the track path as a parameter. Prepend the part after
 Parameters:
     -h -?       print this help and exit.
     -m number   limits the output to a maximum of number pages. Use 0 or a negative number to fetch all results. Default: 10
-    -u URL      extract the streaming URLs from the given link.
+    -l URL      extract the streaming URLs from the given link.
 EOF
 }
 
@@ -119,9 +119,9 @@ while (( $# > 0 )); do
 					shift
 					;;
 
-				u)
+				l)
 					if (( $# < 1 )); then
-						echo "-u needs a parameter" >&2
+						echo "-l needs a parameter" >&2
 						exit 1
 					fi
 					handle_url "$1" "$max_pages"
