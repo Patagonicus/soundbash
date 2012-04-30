@@ -44,8 +44,8 @@ This utility extracts all SoundCloud streaming URLs from a given page. It should
 The streaming URL contains the track path as a parameter. Prepend the part after the quotation mark with http://soundcloud.com to get the track URL.
 
 Parameters:
-	-h -?		print this help and exit
-	-m number	limits the output to a maximum of number pages. Use 0 or a negative number to fetch all results. Default: 10
+    -h -?       print this help and exit.
+    -m number   limits the output to a maximum of number pages. Use 0 or a negative number to fetch all results. Default: 10
 EOF
 }
 
