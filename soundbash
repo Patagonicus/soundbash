@@ -47,6 +47,7 @@ Parameters:
     -h -?       print this help and exit.
     -m number   limits the output to a maximum of number pages. Use 0 or a negative number to fetch all results. Default: 10
     -l URL      extract the streaming URLs from the given link.
+    -u user     extract the streaming URLs from the track page of the given user
 EOF
 }
 
@@ -96,6 +97,17 @@ handle_url() {
 	fi
 }
 
+# Extracts streaming URLs from the tracks page of a given user.
+#
+# Input:
+# $1 - user name
+# $2 - maximum number of pages to extract
+# Output:
+# stdout - the streaming URLs
+handle_user() {
+	get_multi_track_URLs "http://soundcloud.com/${1}/tracks" "$2"
+}
+
 
 max_pages=10
 
@@ -116,6 +128,15 @@ while (( $# > 0 )); do
 						exit 1
 					fi
 					max_pages="$1"
+					shift
+					;;
+
+				u)
+					if (( $# < 1 )); then
+						echo "-u needs a parameter" >&2
+						exit 1
+					fi
+					handle_user "$1" "$max_pages"
 					shift
 					;;
 
