@@ -49,6 +49,7 @@ Parameters:
     -l URL      extract the streaming URLs from the given link.
     -u user     extract the streaming URLs from the track page of the given user
     -f user     extract the streaming URLs from the favorites page of the given user
+    -g group    extract the streaming URLs from a group
 EOF
 }
 
@@ -120,6 +121,17 @@ handle_favorites() {
 	get_multi_track_URLs "http://soundcloud.com/${1}/favorites" "$2"
 }
 
+# Extracts streaming URLs from a given group.
+#
+# Input:
+# $1 - the group name
+# $2 - maximum number of pages to extract
+# Output:
+# stdout - the streaming URLs
+handle_group() {
+	get_multi_track_URLs "http://soundcloud.com/groups/${1}/tracks" "$2"
+}
+
 
 max_pages=10
 
@@ -158,6 +170,15 @@ while (( $# > 0 )); do
 						exit 1
 					fi
 					handle_favorites "$1" "$max_pages"
+					shift
+					;;
+
+				g)
+					if (( $# < 1 )); then
+						echo "-g needs a parameter" >&2
+						exit 1
+					fi
+					handle_group "$1" "$max_pages"
 					shift
 					;;
 
