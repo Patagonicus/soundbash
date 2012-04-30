@@ -127,6 +127,11 @@ while (( $# > 0 )); do
 					handle_url "$1" "$max_pages"
 					shift
 					;;
+
+				*)
+					echo "Unknown parameter: ${params:0:1}" >&2
+					exit 1
+					;;
 			esac
 			params="${params:1}"
 		done
